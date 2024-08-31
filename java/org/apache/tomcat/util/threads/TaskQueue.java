@@ -118,12 +118,16 @@ public class TaskQueue extends LinkedBlockingQueue<Runnable> {
         //we have idle threads, just add it to the queue
         // 到达这里时,当前线程数一定大于核心线程数,并且小于最大线程数
         // 说明可以创建新线程,根据情况决定是否创建新线程
-        // 如果已提交任务数量小于线程数,创建新线程,放进队列中让已有线程去执行
+
+        // 如果已提交任务数量小于等于当前线程池中线程数,说明有线程空闲,放进队列就行,不用创建新线程
         if (parent.getSubmittedCount() <= parent.getPoolSizeNoLock()) {
             return super.offer(o);
         }
         //if we have less threads than maximum force creation of a new thread
-        // 如果已提交任务大于当前线程数,返回false,会创建新线程
+        // 走到这里说明已提交任务大于当前线程数
+        // 此时判断如果还没达到最大线程数,返回false让其尝试去创建线程.
+        // 在并发的情况下,这一步可能导致返回false的线程去尝试创建新线程时线程池达到了最大线程数(其他线程干的),从而被拒绝策略处理
+        // 这一步也是为什么Tomcat需要在ThreadPoolExecutor#execute内,任务被拒绝后还要用force尝试将其放入队列的原因.
         if (parent.getPoolSizeNoLock() < parent.getMaximumPoolSize()) {
             return false;
         }

@@ -1411,7 +1411,16 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             executeInternal(command);
         } catch (RejectedExecutionException rx) {
             // 如果线程池拒绝了,再次尝试将其放入队列一次.
-            // 这里注释说是因为使用TaskQueue的原因,目前还不能理解.
+            /*
+            这里主要原因是因为TaskQueue的offer方法逻辑问题
+            为了让TaskQueue在队列长度无限的情况下,仍然能够有机会创建非核心线程
+            其中的offer方法在当前已提交的任务数量小于最大线程数时,会返回false,而不是插入队列以让其去尝试创建新线程
+            在并发访问下,这就可能产生问题,当一个线程在offer时,恰好进入该段逻辑,返回了false,而不是插入队列,
+            但是当他尝试去创建非核心线程时,如果有其他线程在他前面创建了非核心线程,导致当前线程数达到了最大线程数
+            那么他去尝试创建新线程会失败,而失败就会导致他被拒绝策略处理,而实际上这时候队列并不是满的
+            所以tomcat这里需要再一次尝试将其放入队列,并且调用的时force方法,该方法内部通过super.offer()
+            直接将其插入队列,而不走offer方法的逻辑,确保在队列未满的情况下能进入队列.
+             */
             if (getQueue() instanceof TaskQueue) {
                 // If the Executor is close to maximum pool size, concurrent
                 // calls to execute() may result (due to Tomcat's use of
