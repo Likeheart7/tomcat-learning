@@ -495,6 +495,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
     private long completedTaskCount;
 
     /**
+     * 维护已经提交给线程池但尚未完成的任务个数.
      * The number of tasks submitted but not yet finished. This includes tasks
      * in the queue and tasks that have been handed to a worker thread but the
      * latter did not start executing the task yet.
@@ -1394,6 +1395,14 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * @throws NullPointerException if command or unit is null
      *
      * @deprecated This will be removed in Tomcat 10.1.x onwards
+     *
+     * <pre>
+     * Java的线程池执行策略是：
+     * 新任务到来，用核心线程执行，核心线程用光，放入队列，队列满，启动临时线程，最大线程数满，直接执行拒绝策略（这里不会判断队列是否有空位）
+     * Tomcat重写了执行逻辑：
+     * 当线程池被拒绝策略拒绝时,再次尝试将其放入队列
+     *
+     * </pre>
      */
     @Deprecated
     public void execute(Runnable command, long timeout, TimeUnit unit) {
@@ -1401,6 +1410,8 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         try {
             executeInternal(command);
         } catch (RejectedExecutionException rx) {
+            // 如果线程池拒绝了,再次尝试将其放入队列一次.
+            // 这里注释说是因为使用TaskQueue的原因,目前还不能理解.
             if (getQueue() instanceof TaskQueue) {
                 // If the Executor is close to maximum pool size, concurrent
                 // calls to execute() may result (due to Tomcat's use of
@@ -1408,6 +1419,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
                 // If this happens, add them to the queue.
                 final TaskQueue queue = (TaskQueue) getQueue();
                 try {
+                    // 如果任务已被 Executor 拒绝，则用于尝试向队列中添加任务
                     if (!queue.force(command, timeout, unit)) {
                         submittedCount.decrementAndGet();
                         throw new RejectedExecutionException(sm.getString("threadPoolExecutor.queueFull"));

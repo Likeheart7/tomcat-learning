@@ -20,8 +20,7 @@ import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 
 /**
- * A Thread implementation that records the time at which it was created.
- *
+ * tomcat自定义的线程实现，记录了线程的创建时间
  */
 public class TaskThread extends Thread {
 

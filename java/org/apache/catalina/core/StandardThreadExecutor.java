@@ -28,6 +28,10 @@ import org.apache.tomcat.util.threads.TaskQueue;
 import org.apache.tomcat.util.threads.TaskThreadFactory;
 import org.apache.tomcat.util.threads.ThreadPoolExecutor;
 
+/**
+ * Tomcat自定义线程池的标准实现<br>
+ * 本类也实现了生命周期，线程池自定义逻辑见{@link #startInternal()}
+ */
 public class StandardThreadExecutor extends LifecycleMBeanBase implements Executor, ResizableExecutor {
 
     protected static final StringManager sm = StringManager.getManager(StandardThreadExecutor.class);
@@ -35,46 +39,55 @@ public class StandardThreadExecutor extends LifecycleMBeanBase implements Execut
     // ---------------------------------------------- Properties
     /**
      * Default thread priority
+     * 默认线程优先级
      */
     protected int threadPriority = Thread.NORM_PRIORITY;
 
     /**
      * Run threads in daemon or non-daemon state
+     * 是否为守护线程
      */
     protected boolean daemon = true;
 
     /**
      * Default name prefix for the thread name
+     * 线程默认前缀
      */
     protected String namePrefix = "tomcat-exec-";
 
     /**
      * max number of threads
+     * 最大线程数
      */
     protected int maxThreads = 200;
 
     /**
      * min number of threads
+     * 最大备用线程数
      */
     protected int minSpareThreads = 25;
 
     /**
      * idle time in milliseconds
+     * 最大空闲时间
      */
     protected int maxIdleTime = 60000;
 
     /**
      * The executor we use for this component
+     * 该组件使用的线程池
      */
     protected ThreadPoolExecutor executor = null;
 
     /**
      * the name of this thread pool
+     * 该线程池的名字
      */
     protected String name;
 
     /**
      * The maximum number of elements that can queue up before we reject them
+     * 队列最大元素
      */
     protected int maxQueueSize = Integer.MAX_VALUE;
 
@@ -103,9 +116,11 @@ public class StandardThreadExecutor extends LifecycleMBeanBase implements Execut
      */
     @Override
     protected void startInternal() throws LifecycleException {
-
+        // 自定义的队列，长度是Integer.MAXVALUE，实际上是一个LinkedBlockingQueue的子类
         taskqueue = new TaskQueue(maxQueueSize);
+        // 自定义的线程工厂
         TaskThreadFactory tf = new TaskThreadFactory(namePrefix, daemon, getThreadPriority());
+        // 基于自定义队列和自定义线程工厂实现的自定义线程池
         executor = new ThreadPoolExecutor(getMinSpareThreads(), getMaxThreads(), maxIdleTime, TimeUnit.MILLISECONDS,
                 taskqueue, tf);
         executor.setThreadRenewalDelay(threadRenewalDelay);

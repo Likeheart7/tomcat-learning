@@ -41,6 +41,10 @@ public class TaskQueue extends LinkedBlockingQueue<Runnable> {
         super();
     }
 
+    /**
+     * 因为父类LinkedBlockingQueue默认最大长度是Integer.MAXVALUE
+     * 使用capacity限制他的最大长度
+     */
     public TaskQueue(int capacity) {
         super(capacity);
     }
@@ -94,6 +98,12 @@ public class TaskQueue extends LinkedBlockingQueue<Runnable> {
     }
 
 
+    /*
+    Tomcat默认设置的TaskQueue的长度还是Integer.MAXVALUE
+    当该方法被调用时,已经达到核心线程数了
+    这样做的目的就是为了当tomcat的线程池队列长度是过大时,
+    让线程池有机会创建新的线程,而不是在最大线程满了之后一直往队列里添加.
+     */
     @Override
     public boolean offer(Runnable o) {
       //we can't do any checks
@@ -101,17 +111,23 @@ public class TaskQueue extends LinkedBlockingQueue<Runnable> {
             return super.offer(o);
         }
         //we are maxed out on threads, simply queue the object
+        // 如果线程数达到最大值,添加任务到队列中
         if (parent.getPoolSizeNoLock() == parent.getMaximumPoolSize()) {
             return super.offer(o);
         }
         //we have idle threads, just add it to the queue
+        // 到达这里时,当前线程数一定大于核心线程数,并且小于最大线程数
+        // 说明可以创建新线程,根据情况决定是否创建新线程
+        // 如果已提交任务数量小于线程数,创建新线程,放进队列中让已有线程去执行
         if (parent.getSubmittedCount() <= parent.getPoolSizeNoLock()) {
             return super.offer(o);
         }
         //if we have less threads than maximum force creation of a new thread
+        // 如果已提交任务大于当前线程数,返回false,会创建新线程
         if (parent.getPoolSizeNoLock() < parent.getMaximumPoolSize()) {
             return false;
         }
+        // 默认情况下将其添加到任务队列.
         //if we reached here, we need to add it to the queue
         return super.offer(o);
     }
