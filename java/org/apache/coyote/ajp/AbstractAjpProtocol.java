@@ -29,6 +29,7 @@ import org.apache.tomcat.util.net.SocketWrapperBase;
 import org.apache.tomcat.util.res.StringManager;
 
 /**
+ * AJP协议的处理程序的基本实现，具体实现通常扩展此基类，而不必实现{@link org.apache.coyote.ProtocolHandler}
  * The is the base implementation for the AJP protocol handlers. Implementations typically extend this base class rather
  * than implement {@link org.apache.coyote.ProtocolHandler}. All of the implementations that ship with Tomcat are
  * implemented this way.

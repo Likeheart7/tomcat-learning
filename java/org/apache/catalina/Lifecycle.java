@@ -78,6 +78,11 @@ package org.apache.catalina;
  * methods that trigger the changed. No {@link LifecycleEvent}s are fired if the
  * attempted transition is not valid.
  *
+ * <pre>
+ * 定义了一个组件的生命周期
+ * 主要方法包括init、start、stop、destroy
+ * 同时提供了添加和删除监听器的方法，以观察者模式实现
+ * </pre>
  * @author Craig R. McClanahan
  */
 public interface Lifecycle {

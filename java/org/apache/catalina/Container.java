@@ -73,6 +73,12 @@ import org.apache.juli.logging.Log;
  *     Catalina is embedded in a larger server.
  * </ul>
  *
+ * <pre>
+ * 本接口有四个子接口，分别是{@link Engine} {@link Host} {@link Context} {@link Wrapper}
+ * 其逻辑上以上述顺序呈嵌套父子关系
+ * 在一个请求过程中，根据协议和端口号确认Engine、根据域名确定Host，根据URL确定Context，最后根据URL确定Wrapper
+ * Wrapper内包裹着具体的Servlet
+ * </pre>
  * @author Craig R. McClanahan
  * @author Remy Maucherat
  */

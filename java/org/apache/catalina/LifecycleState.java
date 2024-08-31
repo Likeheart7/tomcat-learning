@@ -17,6 +17,8 @@
 package org.apache.catalina;
 
 /**
+ * 定义了实现{@link Lifecycle} 接口的组件的生命周期的状态
+ * 一旦组件达到响应的状态，就会触发对应的事件
  * The list of valid states for components that implement {@link Lifecycle}.
  * See {@link Lifecycle} for the state transition diagram.
  */

@@ -36,6 +36,7 @@ import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 
 /**
+ * Tomcat的启动类
  * Bootstrap loader for Catalina.  This application constructs a class loader
  * for use in loading the Catalina internal classes (by accumulating all of the
  * JAR files found in the "server" directory under "catalina.home"), and
@@ -55,6 +56,7 @@ public final class Bootstrap {
      * Daemon object used by main.
      */
     private static final Object daemonLock = new Object();
+    // main方法创建的本类的实例，其中catalinaDaemon属性是一个Catalina实例
     private static volatile Bootstrap daemon = null;
 
     private static final File catalinaBaseFile;
@@ -130,6 +132,7 @@ public final class Bootstrap {
 
     /**
      * Daemon reference.
+     * 这里是一个Catalina实例，该实例在{@link #init()}方法中被创建，parentClassLoader属性被设置为{@link java.net.URLClassLoader}
      */
     private Object catalinaDaemon = null;
 
@@ -251,8 +254,10 @@ public final class Bootstrap {
      */
     public void init() throws Exception {
 
+        // 初始化类加载器
         initClassLoaders();
 
+        // 设置当前线程的上下文类加载器，这里用的是URLClassLoader
         Thread.currentThread().setContextClassLoader(catalinaLoader);
 
         SecurityClassLoad.securityClassLoad(catalinaLoader);
@@ -261,7 +266,9 @@ public final class Bootstrap {
         if (log.isDebugEnabled()) {
             log.debug("Loading startup class");
         }
+        // 通过URLClassLoader加载Catalina类
         Class<?> startupClass = catalinaLoader.loadClass("org.apache.catalina.startup.Catalina");
+        // 加载Catalina类后，通过反射实例化URLClassLoader类
         Object startupInstance = startupClass.getConstructor().newInstance();
 
         // Set the shared extensions class loader
@@ -273,10 +280,12 @@ public final class Bootstrap {
         paramTypes[0] = Class.forName("java.lang.ClassLoader");
         Object paramValues[] = new Object[1];
         paramValues[0] = sharedLoader;
+        // 给Catalina类设置共享的扩展类加载器作为父 类加载器
         Method method =
             startupInstance.getClass().getMethod(methodName, paramTypes);
         method.invoke(startupInstance, paramValues);
 
+        // 将该Catalina实例设置为守护程序
         catalinaDaemon = startupInstance;
     }
 
@@ -339,10 +348,11 @@ public final class Bootstrap {
      * @throws Exception Fatal start error
      */
     public void start() throws Exception {
+        // 确认catalinaDaemon属性已经配置
         if (catalinaDaemon == null) {
             init();
         }
-
+        // 调用Catalina#start()方法
         Method method = catalinaDaemon.getClass().getMethod("start", (Class [])null);
         method.invoke(catalinaDaemon, (Object [])null);
     }
@@ -432,6 +442,7 @@ public final class Bootstrap {
 
 
     /**
+     * 整个Tomcat的启动方法
      * Main method and entry point when starting Tomcat via the provided
      * scripts.
      *
@@ -444,6 +455,7 @@ public final class Bootstrap {
                 // Don't set daemon until init() has completed
                 Bootstrap bootstrap = new Bootstrap();
                 try {
+                    // 启动方法的初始化逻辑
                     bootstrap.init();
                 } catch (Throwable t) {
                     handleThrowable(t);
@@ -465,6 +477,7 @@ public final class Bootstrap {
                 command = args[args.length - 1];
             }
 
+            // 启动时默认执行
             if (command.equals("startd")) {
                 args[args.length - 1] = "start";
                 daemon.load(args);
@@ -473,6 +486,7 @@ public final class Bootstrap {
                 args[args.length - 1] = "stop";
                 daemon.stop();
             } else if (command.equals("start")) {
+                // 启动时一般进入该分支
                 daemon.setAwait(true);
                 daemon.load(args);
                 daemon.start();

@@ -30,6 +30,8 @@ import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.res.StringManager;
 
 /**
+ * 实现了{@link Lifecycle} 接口的抽象基类，实现了一些生命周期的公共逻辑
+ * 采用模板方法模式以xxxInternal对应LifeCycle对应的xxx方法
  * Base implementation of the {@link Lifecycle} interface that implements the
  * state transition rules for {@link Lifecycle#start()} and
  * {@link Lifecycle#stop()}
@@ -124,16 +126,22 @@ public abstract class LifecycleBase implements Lifecycle {
         }
     }
 
-
+    /**
+     * 针对父接口init方法的实现
+     */
     @Override
     public final synchronized void init() throws LifecycleException {
+        // 状态检查
         if (!state.equals(LifecycleState.NEW)) {
             invalidTransition(Lifecycle.BEFORE_INIT_EVENT);
         }
 
         try {
+            // 触发INITIALIZING事件的监听器
             setStateInternal(LifecycleState.INITIALIZING, null, false);
+            // 调用子类对初始化方法的具体实现
             initInternal();
+            // 触发INITIALIZED事件的监听器
             setStateInternal(LifecycleState.INITIALIZED, null, false);
         } catch (Throwable t) {
             handleSubClassException(t, "lifecycleBase.initFail", toString());

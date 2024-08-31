@@ -57,12 +57,14 @@ public class StandardService extends LifecycleMBeanBase implements Service {
 
     /**
      * The name of this service.
+     * 该Service的名字
      */
     private String name = null;
 
 
     /**
      * The <code>Server</code> that owns this Service, if any.
+     * 持有该Service的Server
      */
     private Server server = null;
 
@@ -74,6 +76,7 @@ public class StandardService extends LifecycleMBeanBase implements Service {
 
     /**
      * The set of Connectors associated with this Service.
+     * 连接器的数组
      */
     protected Connector connectors[] = new Connector[0];
     private final Object connectorsLock = new Object();
@@ -83,18 +86,21 @@ public class StandardService extends LifecycleMBeanBase implements Service {
      */
     protected final ArrayList<Executor> executors = new ArrayList<>();
 
+    // 对应的Engine容器
     private Engine engine = null;
 
     private ClassLoader parentClassLoader = null;
 
     /**
      * Mapper.
+     * 映射器
      */
     protected final Mapper mapper = new Mapper();
 
 
     /**
      * Mapper listener.
+     * 监听器，用于监听容器的变化，并把信息更新到Mapper中，以支持Tomcat的热部署
      */
     protected final MapperListener mapperListener = new MapperListener(this);
 
@@ -420,9 +426,11 @@ public class StandardService extends LifecycleMBeanBase implements Service {
         if (log.isInfoEnabled()) {
             log.info(sm.getString("standardService.start.name", this.name));
         }
+        // 设置状态，触发启动监听器
         setState(LifecycleState.STARTING);
 
         // Start our defined Container first
+        // 先启动Engine容器，启动Engine时，他会启动他的子容器
         if (engine != null) {
             synchronized (engine) {
                 engine.start();
@@ -435,8 +443,10 @@ public class StandardService extends LifecycleMBeanBase implements Service {
             }
         }
 
+        // 启动MapperListener监听器
         mapperListener.start();
 
+        // 启动连接器，连接器也会启动他的子组件，如EndPoint
         // Start our defined Connectors second
         synchronized (connectorsLock) {
             for (Connector connector : connectors) {

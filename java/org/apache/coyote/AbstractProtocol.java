@@ -38,6 +38,7 @@ import javax.management.ObjectName;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.WebConnection;
 
+import org.apache.coyote.http11.AbstractHttp11Protocol;
 import org.apache.coyote.http11.upgrade.InternalHttpUpgradeHandler;
 import org.apache.juli.logging.Log;
 import org.apache.tomcat.InstanceManager;
@@ -50,6 +51,11 @@ import org.apache.tomcat.util.net.SocketEvent;
 import org.apache.tomcat.util.net.SocketWrapperBase;
 import org.apache.tomcat.util.res.StringManager;
 
+/**
+ * 实现了AbstractProtocol的抽象基类
+ * 每个具体的应用层协议有自己的抽象基类，继承本类
+ * 如{@link AbstractHttp11Protocol}
+ */
 public abstract class AbstractProtocol<S> implements ProtocolHandler, MBeanRegistration {
 
     /**

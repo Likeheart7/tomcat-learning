@@ -60,6 +60,7 @@ import org.apache.tomcat.util.threads.TaskThreadFactory;
 import org.apache.tomcat.util.threads.ThreadPoolExecutor;
 
 /**
+ * 处理网络通信功能的抽象基类，Endpoint用来实现TCP/IP协议。
  * @param <S> The type used by the socket wrapper associated with this endpoint.
  *            May be the same as U.
  * @param <U> The type of the underlying socket used by this endpoint. May be

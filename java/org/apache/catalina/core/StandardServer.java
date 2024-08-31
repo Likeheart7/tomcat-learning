@@ -63,6 +63,7 @@ import org.apache.tomcat.util.threads.TaskThreadFactory;
 
 
 /**
+ * {@link Server} 的标准实现
  * Standard implementation of the <b>Server</b> interface, available for use (but not required) when deploying and
  * starting Catalina.
  *
@@ -139,6 +140,7 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
 
     /**
      * The set of Services associated with this Server.
+     * 保存了所有该Server持有的Service
      */
     private Service[] services = new Service[0];
     private final Object servicesLock = new Object();
@@ -497,6 +499,7 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
 
     /**
      * Add a new Service to the set of defined Services.
+     * 添加一个Service到当前Server，一个Server可以持有多个Service
      *
      * @param service The Service to be added
      */
@@ -506,11 +509,14 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
         service.setServer(this);
 
         synchronized (servicesLock) {
+            // 默认service的长度是0，创建一个长度大1的数组
             Service results[] = new Service[services.length + 1];
+            // 将原来的Service复制到新数组中
             System.arraycopy(services, 0, results, 0, services.length);
             results[services.length] = service;
             services = results;
 
+            // 启动Service组件
             if (getState().isAvailable()) {
                 try {
                     service.start();
@@ -520,6 +526,7 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
             }
 
             // Report this property change to interested listeners
+            // 触发监听事件
             support.firePropertyChange("service", null, service);
         }
 
@@ -548,6 +555,8 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
     }
 
     /**
+     * 等待收到正确的 shutdown 命令，然后返回。这将使主线程保持活动状态
+     * - 侦听 http 连接的线程池是守护程序线程。
      * Wait until a proper shutdown command is received, then return. This keeps the main thread alive - the thread pool
      * listening for http connections is daemon threads.
      */
@@ -910,6 +919,7 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
 
         // Start our defined Services
         synchronized (servicesLock) {
+            // 启动该Server内部的每一个Service
             for (Service service : services) {
                 service.start();
             }

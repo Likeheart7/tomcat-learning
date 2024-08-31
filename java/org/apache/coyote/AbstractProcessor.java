@@ -40,8 +40,14 @@ import org.apache.tomcat.util.net.SocketWrapperBase;
 import org.apache.tomcat.util.res.StringManager;
 
 /**
- * Provides functionality and attributes common to all supported protocols (currently HTTP and AJP) for processing a
- * single request/response.
+ * 提供所有受支持协议（当前为 HTTP 和 AJP）通用的功能和属性，用于处理单个 request response
+ * 作为Processor的抽象实现类，对一些协议的共有属性进行封装，没有对方法进行实现。
+ * 具体的实现有{@link }
+ * <pre>
+ * {@link org.apache.coyote.ajp.AjpProcessor}
+ * {@link org.apache.coyote.http11.Http11Processor}
+ * {@link org.apache.coyote.http2.StreamProcessor}
+ * </pre>
  */
 public abstract class AbstractProcessor extends AbstractProcessorLight implements ActionHook {
 

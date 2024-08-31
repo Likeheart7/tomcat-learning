@@ -16,9 +16,13 @@
  */
 package org.apache.coyote;
 
+import org.apache.catalina.connector.CoyoteAdapter;
 import org.apache.tomcat.util.net.SocketEvent;
 
 /**
+ * <p>这里会将Tomcat解析出来的Request、Response，转为Servlet能接受的ServletRequest和ServletResponse</p>
+ * <p>入口方法是本接口定义的{@link #service(Request, Response)}</p>
+ * <p>具体实现在{@link CoyoteAdapter#service(Request, Response)}</p>
  * Adapter. This represents the entry point in a coyote-based servlet container.
  *
  * @author Remy Maucherat

@@ -19,6 +19,17 @@ package org.apache.tomcat.util.net;
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 
+/**
+ * <pre>
+ * 和{@link Acceptor}一起，作为AbstractEndPoint的子类Nio2EndPoint和NioEndPoint的子组件之一
+ * 本类具体实现类主要是Processor内的内部类
+ *
+ * EndPoint接收到Socket连接后，生成一个SocketProcessor任务，提交到线程池去处理
+ * SocketProcessor的run方法会调用Processor组件去解析应用层协议，解析生成Request对象
+ * 生成Request对象后，调用Adapter的service方法
+ * </pre>
+ * @param <S>
+ */
 public abstract class SocketProcessorBase<S> implements Runnable {
 
     protected SocketWrapperBase<S> socketWrapper;

@@ -105,6 +105,7 @@ public class Catalina {
 
     /**
      * The server component we are starting or stopping.
+     * 该Catalina实例持有的Server组件，一个Catalina只有一个
      */
     protected Server server = null;
 
@@ -756,7 +757,9 @@ public class Catalina {
      */
     public void start() {
 
+        // 确保server属性已经初始化了一个Server的实例
         if (getServer() == null) {
+            // 从server.xml解析，创建一个sever
             load();
         }
 
@@ -769,6 +772,9 @@ public class Catalina {
 
         // Start the new server
         try {
+            // 调用Server的start方法，一般是StandardServer
+            // 而start方法来自LifeCycle的抽象实现类LifeCycleBase
+            // 内部会一直调用到StandardServer的startInternal方法，里面会启动每一个Service
             getServer().start();
         } catch (LifecycleException e) {
             log.fatal(sm.getString("catalina.serverStartFail"), e);
@@ -790,8 +796,10 @@ public class Catalina {
         }
 
         // Register shutdown hook
+        // 创建并注册关闭钩子
         if (useShutdownHook) {
             if (shutdownHook == null) {
+                // CatalinaShutdownHook就是一个线程，调用server的stop方法，stop方法会清理并释放资源
                 shutdownHook = new CatalinaShutdownHook();
             }
             Runtime.getRuntime().addShutdownHook(shutdownHook);
@@ -806,7 +814,9 @@ public class Catalina {
             }
         }
 
+        // 用await方法监听停止请求
         if (await) {
+            // 调用的是Server的await方法
             await();
             stop();
         }

@@ -118,6 +118,7 @@ import org.apache.tomcat.util.threads.InlineExecutorService;
  * </tr>
  * </table>
  * Subclasses that fire additional events should document them in the class comments of the implementation class.
+ * {@link Container}的抽象基类，实现了各个Container子类的公共逻辑
  *
  * @author Craig R. McClanahan
  */
@@ -150,6 +151,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
 
     /**
      * The child Containers belonging to this Container, keyed by name.
+     * 当前容器持有的所有子容器
      */
     protected final HashMap<String, Container> children = new HashMap<>();
 
@@ -843,6 +845,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
 
 
     /**
+     * 启动子容器
      * Start this component and implement the requirements of
      * {@link org.apache.catalina.util.LifecycleBase#startInternal()}.
      *
@@ -932,6 +935,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
         // Stop our child containers, if any
         Container[] children = findChildren();
         List<Future<Void>> results = new ArrayList<>(children.length);
+        // 使用线程池启动子容器
         for (Container child : children) {
             results.add(startStopExecutor.submit(new StopChild(child)));
         }

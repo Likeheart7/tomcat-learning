@@ -24,6 +24,14 @@ import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.res.StringManager;
 
+/**
+ * <pre>
+ * 作为AbstractEndPoint的子类Nio2EndPoint和NioEndPoint的子组件之一，
+ * 另一个是{@link org.apache.tomcat.util.net.SocketProcessorBase}的子类
+ *
+ * Acceptor用于监听Socket连接请求
+ * </pre>
+ */
 public class Acceptor<U> implements Runnable {
 
     private static final Log log = LogFactory.getLog(Acceptor.class);

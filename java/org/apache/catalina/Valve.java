@@ -36,6 +36,10 @@ import org.apache.catalina.connector.Response;
  * @author Craig R. McClanahan
  * @author Gunnar Rjnning
  * @author Peter Donald
+ * <pre>
+ * <p>处理链中的一个处理点，{@link  #invoke(Request, Response)}方法就是该处理点的逻辑</p>
+ * <p>这些处理点，最后被{@link Pipeline}组合成处理链</p>
+ * </pre>
  */
 public interface Valve {
 

@@ -50,6 +50,10 @@ import org.apache.tomcat.util.net.SSLHostConfig;
 import org.apache.tomcat.util.net.SocketWrapperBase;
 import org.apache.tomcat.util.res.StringManager;
 
+/**
+ * HTTP1.1协议处理程序的基本实现，具体实现可以直接扩展此类，无需实现{@link org.apache.coyote.ProtocolHandler}
+ * @param <S>
+ */
 public abstract class AbstractHttp11Protocol<S> extends AbstractProtocol<S> {
 
     protected static final StringManager sm = StringManager.getManager(AbstractHttp11Protocol.class);

@@ -26,6 +26,7 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
 
 /**
+ * 用于StandardEngine的BasicValve(Pipeline的最后一个Valve，会调用底层容器的Pipeline第一个元素)
  * Valve that implements the default basic behavior for the <code>StandardEngine</code> container implementation.
  * <p>
  * <b>USAGE CONSTRAINT</b>: This implementation is likely to be useful only when processing HTTP requests.
@@ -56,6 +57,7 @@ final class StandardEngineValve extends ValveBase {
     public void invoke(Request request, Response response) throws IOException, ServletException {
 
         // Select the Host to be used for this Request
+        // 拿到请求中的Host容器
         Host host = request.getHost();
         if (host == null) {
             // HTTP 0.9 or HTTP 1.0 request without a host when no default host
@@ -71,6 +73,8 @@ final class StandardEngineValve extends ValveBase {
         }
 
         // Ask this Host to process this request
+        // 调用Host容器中的Pipeline中的第一个Valve
+        // 所以实际上本方法就是将请求转给了Host容器
         host.getPipeline().getFirst().invoke(request, response);
     }
 }

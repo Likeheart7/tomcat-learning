@@ -48,6 +48,7 @@ import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.ExceptionUtils;
 
 /**
+ * {@link Host}的标准实现
  * Standard implementation of the <b>Host</b> interface. Each child container must be a Context implementation to
  * process the requests directed to a particular web application.
  *
@@ -665,12 +666,14 @@ public class StandardHost extends ContainerBase implements Host {
 
 
     /**
+     * tomcat自定义的，用于检测Context容器中内存泄露的监听器
      * Used to ensure the regardless of {@link Context} implementation, a record is kept of the class loader used every
      * time a context starts.
      */
     private class MemoryLeakTrackingListener implements LifecycleListener {
         @Override
         public void lifecycleEvent(LifecycleEvent event) {
+            // 监听的事件是AFTER_START_EVENT
             if (event.getType().equals(Lifecycle.AFTER_START_EVENT)) {
                 if (event.getSource() instanceof Context) {
                     Context context = ((Context) event.getSource());

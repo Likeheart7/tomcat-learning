@@ -30,8 +30,9 @@ import java.io.PrintWriter;
 public class CustomServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        PrintWriter out = resp.getWriter();
+        System.out.println("=====>>> tomcat get the request");
         resp.setContentType("text/html;charset=utf-8");
-        out.println("<em>CustomServlet handled this request and reply the message</em>");
+        PrintWriter out = resp.getWriter();
+        out.println("<em>CustomServlet 处理并响应该请求</em>");
     }
 }

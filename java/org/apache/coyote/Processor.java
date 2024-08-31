@@ -25,7 +25,10 @@ import org.apache.tomcat.util.net.SocketEvent;
 import org.apache.tomcat.util.net.SocketWrapperBase;
 
 /**
- * Common interface for processors of all protocols.
+ * 协议解析的通用接口,定义了请求的处理等方法。<br/>
+ * Processor用来实现HTTP协议，Processor从EndPoint获取到Socket，读取字节流，将其解析成
+ * Tomcat Request和Tomcat Response，然后交给Adapter，Adapter会将其处理成ServletRequest和ServletResponse
+ * 最后交给容器内的Servlet处理。
  */
 public interface Processor {
 
