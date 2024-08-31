@@ -42,6 +42,7 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.catalina.core.StandardThreadExecutor;
 import org.apache.tomcat.util.res.StringManager;
 
 /**
@@ -1400,7 +1401,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * Java的线程池执行策略是：
      * 新任务到来，用核心线程执行，核心线程用光，放入队列，队列满，启动临时线程，最大线程数满，直接执行拒绝策略（这里不会判断队列是否有空位）
      * Tomcat重写了执行逻辑：
-     * 当线程池被拒绝策略拒绝时,再次尝试将其放入队列
+     * 当线程池被拒绝策略拒绝时,再次尝试将其放入队列这是因为TaskQueue的offer方法的影响，实际上tomcat线程池的逻辑是
+     * 先用核心线程
+     * 核心线程满，未达最大线程，用创建新线程。
      *
      * </pre>
      */
@@ -1444,6 +1447,29 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         }
     }
 
+
+    /**
+     * 验证tomcat的线程池会先开临时线程而不是先添加队列
+     * 创建方式参考{@link StandardThreadExecutor#startInternal()}
+     */
+    public static void main(String[] args) {
+        TaskQueue queue = new TaskQueue(5);
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 4, 30, TimeUnit.SECONDS, queue);
+        // 如果taskQueue设置了parent，offer方法就会起作用
+        queue.setParent(pool);
+        for (int i = 0; i < 4; i++) {
+            pool.execute(()-> {
+                // 睡眠5s，便于观测
+                try {TimeUnit.SECONDS.sleep(4);} catch (InterruptedException e) {e.printStackTrace();}
+            });
+        }
+        // 以Java线程池的逻辑，现在应该是线程池只有两个线程，队列中有两个元素
+        // 以tomcat逻辑看，线程池有四个线程，队列中没有元素
+        System.out.println("当前线程池线程数量：" + pool.getPoolSize());
+        System.out.println("当前队列内元素个数：" + queue.size());
+        // 结论是如果不给TaskQueue设置parent，offer方法逻辑不会生效，那么就和正常Java线程池没有区别，结果就是2，2
+        // 如果设置了parent，offer方法逻辑生效，结果是4，0
+    }
 
     /**
      * Executes the given task sometime in the future.  The task

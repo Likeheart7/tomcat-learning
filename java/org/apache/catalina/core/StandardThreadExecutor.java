@@ -124,6 +124,7 @@ public class StandardThreadExecutor extends LifecycleMBeanBase implements Execut
         executor = new ThreadPoolExecutor(getMinSpareThreads(), getMaxThreads(), maxIdleTime, TimeUnit.MILLISECONDS,
                 taskqueue, tf);
         executor.setThreadRenewalDelay(threadRenewalDelay);
+        // 设置了parent属性会导致TaskQueue#offer逻辑生效
         taskqueue.setParent(executor);
 
         setState(LifecycleState.STARTING);
