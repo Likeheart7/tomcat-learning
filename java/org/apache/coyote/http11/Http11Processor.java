@@ -66,6 +66,10 @@ import org.apache.tomcat.util.net.SendfileState;
 import org.apache.tomcat.util.net.SocketWrapperBase;
 import org.apache.tomcat.util.res.StringManager;
 
+/**
+ * 本类会处理EndPoint处理后传过来的SocketProcessor，其被包装在{@link SocketWrapperBase}的子类里
+ * 用于处理不同IO模型的情况
+ */
 public class Http11Processor extends AbstractProcessor {
 
     private static final Log log = LogFactory.getLog(Http11Processor.class);

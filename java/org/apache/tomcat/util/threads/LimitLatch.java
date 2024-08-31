@@ -24,6 +24,8 @@ import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 
 /**
+ * 连接控制器，负责控制最大连接数。整体看起来很像semaphore
+ * NIO下默认10000，达到阈值后，连接请求被拒绝
  * Shared latch that allows the latch to be acquired a limited number of times
  * after which all subsequent requests to acquire the latch will be placed in a
  * FIFO queue until one of the shares is returned.
@@ -32,6 +34,9 @@ public class LimitLatch {
 
     private static final Log log = LogFactory.getLog(LimitLatch.class);
 
+    /**
+     * 一个基于AQS的自定义实现
+     */
     private class Sync extends AbstractQueuedSynchronizer {
         private static final long serialVersionUID = 1L;
 
@@ -58,7 +63,9 @@ public class LimitLatch {
     }
 
     private final Sync sync;
+    // 使用原子类保证原子性
     private final AtomicLong count;
+    // 使用volatile保证可见性
     private volatile long limit;
     private volatile boolean released = false;
 
@@ -106,6 +113,7 @@ public class LimitLatch {
 
 
     /**
+     * 线程调用该方法获得接收新连接的许可，线程可能被阻塞
      * Acquires a shared latch if one is available or waits for one if no shared
      * latch is current available.
      * @throws InterruptedException If the current thread is interrupted
@@ -118,6 +126,7 @@ public class LimitLatch {
     }
 
     /**
+     * 调用该方法来释放一个连接许可，前面阻塞的线程可能会被唤醒
      * Releases a shared latch, making it available for another thread to use.
      * @return the previous counter value
      */

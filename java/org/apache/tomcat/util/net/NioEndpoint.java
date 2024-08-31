@@ -73,6 +73,8 @@ import org.apache.tomcat.util.net.jsse.JSSESupport;
  *
  * TODO: Consider using the virtual machine's thread pool.
  *
+ * 一般情况下，我们在SpringBoot项目中，默认使用的也是本类，而不是Nio2EndPoint
+ *
  * @author Mladen Turk
  * @author Remy Maucherat
  */
@@ -270,11 +272,14 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
                 }
             }
         } else {
+            // 开启监听服务并绑定在8080端口上
             serverSock = ServerSocketChannel.open();
             socketProperties.setProperties(serverSock.socket());
             InetSocketAddress addr = new InetSocketAddress(getAddress(), getPortWithOffset());
+            // 绑定地址和待处理连接的最大数量，默认是100
             serverSock.bind(addr, getAcceptCount());
         }
+        // 配置阻塞模式
         serverSock.configureBlocking(true); //mimic APR behavior
     }
 
@@ -498,6 +503,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
 
             // Set socket properties
             // Disable blocking, polling will be used
+            // 停用阻塞，改为轮询
             socket.configureBlocking(false);
             if (getUnixDomainSocketPath() == null) {
                 socketProperties.setProperties(socket.socket());
@@ -545,6 +551,7 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
 
     @Override
     protected SocketChannel serverSocketAccept() throws Exception {
+        // accept方法返回SocketChannel对象
         SocketChannel result = serverSock.accept();
 
         // Bug does not affect Windows platform and Unix Domain Socket. Skip the check.
@@ -621,10 +628,17 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
 
     /**
      * Poller class.
+     * 本质是一个Selector，单独跑在一个线程里。
+     * Poller内部维护一个Channel数组，在循环里不断检测所有channel的状态，一旦有Channel可读，
+     * 就生成SocketProcessor任务对象交给{@link org.apache.catalina.Executor}处理。
      */
     public class Poller implements Runnable {
 
+        // Selector对象，用来监测所有Channel的状态。在构造器中被赋值
+        // 监测逻辑见run方法
         private Selector selector;
+        // SynchronizedQueue是一个同步队列，所有方法都被synchronized修饰
+        // PollerEvent内部包含NioSocketWrapper，而其内部最终维护了一个SocketChannel
         private final SynchronizedQueue<PollerEvent> events =
                 new SynchronizedQueue<>();
 
@@ -632,11 +646,13 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
         // Optimize expiration handling
         private long nextExpiration = 0;
 
+        // 使用原子类保证原子性和可见性
         private AtomicLong wakeupCounter = new AtomicLong(0);
 
         private volatile int keyCount = 0;
 
         public Poller() throws IOException {
+            // 在构造器中创建Selector实例
             this.selector = Selector.open();
         }
 
@@ -703,8 +719,10 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
             boolean result = false;
 
             PollerEvent pe = null;
+            // 查看events属性这个队列中的所有channel
             for (int i = 0, size = events.size(); i < size && (pe = events.poll()) != null; i++ ) {
                 result = true;
+                // 从PollerEvent中把包装的SocketChannel提取出来
                 NioSocketWrapper socketWrapper = pe.getSocketWrapper();
                 SocketChannel sc = socketWrapper.getSocket().getIOChannel();
                 int interestOps = pe.getInterestOps();
@@ -797,12 +815,14 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
         @Override
         public void run() {
             // Loop until destroy() is called
+            // 在run方法中循环监测所有的Channel
             while (true) {
 
                 boolean hasEvents = false;
 
                 try {
                     if (!close) {
+                        // 调用events()方法监测所有channel
                         hasEvents = events();
                         if (wakeupCounter.getAndSet(-1) > 0) {
                             // If we are here, means we have other stuff to do
@@ -1725,6 +1745,8 @@ public class NioEndpoint extends AbstractJsseEndpoint<NioChannel,SocketChannel> 
     // ---------------------------------------------- SocketProcessor Inner Class
 
     /**
+     * Poller会创建该类交给线程池处理，本类父类实现了Runnable接口，用来定义Executor中线程所执行的任务。
+     * 主要是调用{@link org.apache.coyote.http11.Http11Processor}组件来处理请求。
      * This class is the equivalent of the Worker, but will simply use in an
      * external Executor thread pool.
      */

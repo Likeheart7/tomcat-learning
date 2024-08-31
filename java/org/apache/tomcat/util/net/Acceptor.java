@@ -29,7 +29,8 @@ import org.apache.tomcat.util.res.StringManager;
  * 作为AbstractEndPoint的子类Nio2EndPoint和NioEndPoint的子组件之一，
  * 另一个是{@link org.apache.tomcat.util.net.SocketProcessorBase}的子类
  *
- * Acceptor用于监听Socket连接请求
+ * Acceptor用于监听Socket连接请求，单独跑在一个线程里(实现了Runnable)，在死循环内调用accept来来接收新连接。
+ * 一旦有新连接请求到来，accept方法返回一个Channel对象，将该Channel交给{@link org.apache.tomcat.util.net.NioEndpoint.Poller}处理
  * </pre>
  */
 public class Acceptor<U> implements Runnable {
@@ -134,6 +135,7 @@ public class Acceptor<U> implements Runnable {
                     try {
                         // Accept the next incoming connection from the server
                         // socket
+                        // 通过endpoint的serverSocketAccept方法，accept方法
                         socket = endpoint.serverSocketAccept();
                     } catch (Exception ioe) {
                         // We didn't get a socket

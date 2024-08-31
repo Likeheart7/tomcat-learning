@@ -18,6 +18,13 @@ package org.apache.catalina;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * <pre>
+ * tomcat自定义的线程池接口，继承了JUC包的Executor接口
+ * 具体的工作就是执行SocketProcessor的run方法，即解析请求并通过容器来处理请求。
+ * 最终会调用到Servlet
+ * </pre>
+ */
 public interface Executor extends java.util.concurrent.Executor, Lifecycle {
 
     String getName();
@@ -39,6 +46,7 @@ public interface Executor extends java.util.concurrent.Executor, Lifecycle {
      * @throws NullPointerException if command or unit is null
      *
      * @deprecated Unused. Will be removed in Tomcat 10.1.x onwards.
+     * SocketProcessor的父类SocketProcessorBase实现了Runnable接口
      */
     @Deprecated
     void execute(Runnable command, long timeout, TimeUnit unit);
