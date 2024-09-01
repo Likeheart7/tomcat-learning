@@ -18,6 +18,9 @@ package org.apache.catalina.loader;
 
 import org.apache.catalina.LifecycleException;
 
+/**
+ * tomcat自定义的类加载器，并通过该类的父类打破双亲委派机制
+ */
 public class WebappClassLoader extends WebappClassLoaderBase {
 
     public WebappClassLoader() {

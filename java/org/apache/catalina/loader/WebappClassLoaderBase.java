@@ -872,6 +872,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
                         new PrivilegedFindClassByName(name);
                     clazz = AccessController.doPrivileged(dp);
                 } else {
+                    // 现在web应用目录下查找类
                     clazz = findClassInternal(name);
                 }
             } catch(AccessControlException ace) {
@@ -884,6 +885,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
                 }
                 throw e;
             }
+            // 如果没有找到，交给父类加载器去加载，这突破了双亲委派机制
             if ((clazz == null) && hasExternalRepositories) {
                 try {
                     clazz = super.findClass(name);
@@ -898,6 +900,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
                     throw e;
                 }
             }
+            // 如果父类也没找到，抛出异常
             if (clazz == null) {
                 if (log.isDebugEnabled()) {
                     log.debug("    --> Returning ClassNotFoundException");
@@ -1259,6 +1262,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             checkStateForClassLoading(name);
 
             // (0) Check our previously loaded local class cache
+            // 现在本地查看该类是否已经加载
             clazz = findLoadedClass0(name);
             if (clazz != null) {
                 if (log.isDebugEnabled()) {
@@ -1271,6 +1275,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
 
             // (0.1) Check our previously loaded class cache
+            // 看系统类加载器的cache，查看类是否加载过
             clazz = JreCompat.isGraalAvailable() ? null : findLoadedClass(name);
             if (clazz != null) {
                 if (log.isDebugEnabled()) {
@@ -1287,6 +1292,8 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             //       SRV.10.7.2
             String resourceName = binaryNameToPath(name, false);
 
+            // 尝试用扩展类加载器加载
+            // 这一不是为了防止自定义类覆盖了JRE的核心类
             ClassLoader javaseLoader = getJavaseClassLoader();
             boolean tryLoadingFromJavaseLoader;
             try {
@@ -1372,6 +1379,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             if (log.isDebugEnabled()) {
                 log.debug("  Searching local repositories");
             }
+            // 尝试从本地目录搜索class加载
             try {
                 clazz = findClass(name);
                 if (clazz != null) {
@@ -1392,6 +1400,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
                 if (log.isDebugEnabled()) {
                     log.debug("  Delegating to parent classloader at end: " + parent);
                 }
+                // 尝试用系统类加载器加载，即AppClassLoader
                 try {
                     clazz = Class.forName(name, false, parent);
                     if (clazz != null) {
@@ -1409,6 +1418,7 @@ public abstract class WebappClassLoaderBase extends URLClassLoader
             }
         }
 
+        // 都找不到，抛出异常
         throw new ClassNotFoundException(name);
     }
 
