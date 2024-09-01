@@ -1068,6 +1068,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
 
 
     /**
+     * 执行周期性任务，所有实现了Container接口的容器都会有这个方法
      * Execute a periodic task, such as reloading, etc. This method will be invoked inside the classloading context of
      * this container. Unexpected throwables will be caught and logged.
      */
@@ -1078,6 +1079,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
             return;
         }
 
+        // 执行容器中Cluster组件的周期任务
         Cluster cluster = getClusterInternal();
         if (cluster != null) {
             try {
@@ -1086,6 +1088,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
                 log.warn(sm.getString("containerBase.backgroundProcess.cluster", cluster), e);
             }
         }
+        // 执行容器中 Realm组件的周期任务
         Realm realm = getRealmInternal();
         if (realm != null) {
             try {
@@ -1094,6 +1097,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
                 log.warn(sm.getString("containerBase.backgroundProcess.realm", realm), e);
             }
         }
+        // 执行容器中Valve组件的周期任务
         Valve current = pipeline.getFirst();
         while (current != null) {
             try {
@@ -1103,6 +1107,7 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
             }
             current = current.getNext();
         }
+        // 触发容器的周期时间，Host容器的HostConfig就靠它调用
         fireLifecycleEvent(Lifecycle.PERIODIC_EVENT, null);
     }
 
@@ -1279,11 +1284,13 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
     /**
      * Private runnable class to invoke the backgroundProcess method of this container and its children after a fixed
      * delay.
+     * 用于在固定延迟后调用此容器及其子容器的 backgroundProcess 方法。
      */
     protected class ContainerBackgroundProcessor implements Runnable {
 
         @Override
         public void run() {
+            // 参数是宿主类实例
             processChildren(ContainerBase.this);
         }
 
@@ -1302,9 +1309,12 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
                     // is performed under the web app's class loader
                     originalClassLoader = ((Context) container).bind(false, null);
                 }
+                // 调用当前容器的backgroundProcess方法
                 container.backgroundProcess();
                 Container[] children = container.findChildren();
+                // 遍历所有子容器，递归调用processChildren，那么所有子孙的backgroundProcess方法都会被调用
                 for (Container child : children) {
+                    // 容器基类有个 backgroundProcessorDelay 变量，如果大于 0，表明子容器有自己的后台线程，无需父容器来调用它的 processChildren 方法
                     if (child.getBackgroundProcessorDelay() <= 0) {
                         processChildren(child);
                     }
