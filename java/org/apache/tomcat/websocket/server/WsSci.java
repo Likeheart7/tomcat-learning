@@ -34,11 +34,16 @@ import javax.websocket.server.ServerEndpointConfig;
 import org.apache.tomcat.util.compat.JreCompat;
 
 /**
+ * 注册任何带有{@link ServerEndpoint}注解的类，以便可以通过webSocket服务发布EndPoint
  * Registers an interest in any class that is annotated with {@link ServerEndpoint} so that Endpoint can be published
  * via the WebSocket server.
  */
 @HandlesTypes({ ServerEndpoint.class, ServerApplicationConfig.class, Endpoint.class })
 public class WsSci implements ServletContainerInitializer {
+
+    static {
+        System.out.println("tomcat wssci loading...");
+    }
 
     @Override
     public void onStartup(Set<Class<?>> clazzes, ServletContext ctx) throws ServletException {

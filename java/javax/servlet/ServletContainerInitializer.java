@@ -19,6 +19,7 @@ package javax.servlet;
 import java.util.Set;
 
 /**
+ * <p>用于接收Web应用启动事件的接口</p>
  * ServletContainerInitializers (SCIs) are registered via an entry in the file
  * META-INF/services/javax.servlet.ServletContainerInitializer that must be included in the JAR file that contains the
  * SCI implementation.

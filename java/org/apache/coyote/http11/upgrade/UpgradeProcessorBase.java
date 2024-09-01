@@ -27,6 +27,10 @@ import org.apache.coyote.UpgradeToken;
 import org.apache.tomcat.util.net.AbstractEndpoint.Handler.SocketState;
 import org.apache.tomcat.util.net.SocketWrapperBase;
 
+
+/**
+ * WebSocket协议是HTTP协议升级来的，所以该类叫UpgradeProcessorBase，处理WS的Processor
+ */
 public abstract class UpgradeProcessorBase extends AbstractProcessorLight implements WebConnection {
 
     protected static final int INFINITE_TIMEOUT = -1;

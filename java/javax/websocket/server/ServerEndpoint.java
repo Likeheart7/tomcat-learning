@@ -24,6 +24,10 @@ import java.lang.annotation.Target;
 import javax.websocket.Decoder;
 import javax.websocket.Encoder;
 
+/**
+ * tomcat提供的websocket支持，用于标注在类上，表示该类是一个websocket服务端
+ * Tomcat 会给每一个 WebSocket 连接创建一个 Endpoint 实例
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ServerEndpoint {

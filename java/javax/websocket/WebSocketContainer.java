@@ -20,6 +20,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Set;
 
+/**
+ * tomcat为每个连接都创建一个ServerEndPoint实例
+ * WebSocketContainer是管理EndPoint的容器。
+ * 也负责处理websocket请求(类似servlet容器管理servlet，并处理http请求)
+ */
 public interface WebSocketContainer {
 
     /**
