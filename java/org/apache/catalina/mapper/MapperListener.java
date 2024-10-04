@@ -41,7 +41,7 @@ import org.apache.tomcat.util.res.StringManager;
 
 /**
  * Mapper listener.
- *
+ * 在组件状态变更时，更新 {@link Mapper}
  * @author Remy Maucherat
  * @author Costin Manolache
  */

@@ -79,9 +79,10 @@ package org.apache.catalina;
  * attempted transition is not valid.
  *
  * <pre>
- * 定义了一个组件的生命周期
+ * 定义了组件的生命周期。
+ * Tomcat所有组件都实现了该接口。包括但不限于Server、Service、Connector、Container（传递给其所有子组件，Engine、Host、Context、Wrapper）
  * 主要方法包括init、start、stop、destroy
- * 同时提供了添加和删除监听器的方法，以观察者模式实现
+ * 同时提供了添加和删除监听器的方法，以观察者模式实现。所以所有组件都可以通过添加监听器监听组件状态变更。
  * </pre>
  * @author Craig R. McClanahan
  */

@@ -44,7 +44,7 @@ import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 
 /**
- * {@link Engine} 的标准实现，其子容器时Host
+ * {@link Engine} 的标准实现，其子容器只能是Host
  * Standard implementation of the <b>Engine</b> interface. Each child container must be a Host implementation to process
  * the specific fully qualified host name of that virtual host. <br>
  * The jvmRoute should be set directly like any other property. Using the System property <b>jvmRoute</b> is deprecated

@@ -23,7 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.apache.tomcat.util.net.SSLHostConfig;
 
 /**
- * 用于封装EndPoint和Processor，提供一个封装后的支持网络通信+协议解析的组件(因为这两步对于某个具体的协议互相绑定)
+ * 用于封装{@link  org.apache.tomcat.util.net.AbstractEndpoint}{@link Processor}，提供一个封装后的支持网络通信+协议解析的组件(因为这两步对于某个具体的协议互相绑定)
  * Abstract the protocol implementation, including threading, etc. This is the main interface to be implemented by a
  * coyote protocol. Adapter is the main interface to be implemented by a coyote servlet container.
  *

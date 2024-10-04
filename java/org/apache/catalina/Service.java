@@ -20,6 +20,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.catalina.mapper.Mapper;
 
 /**
+ * service持有的是Engine。主要包含Connector用于处理连接，解析协议；Engine维护Servlet等。
  * A <strong>Service</strong> is a group of one or more
  * <strong>Connectors</strong> that share a single <strong>Container</strong>
  * to process their incoming requests.  This arrangement allows, for example,

@@ -33,7 +33,7 @@ import java.util.Set;
  * will always be executed last.  Other Valves will be executed in the order
  * that they were added, before the basic Valve is executed.</p>
  *
- * <p>将多个Valve组合成链，以责任链的形式，逐个处理每个Valve</p>
+ * <p>将多个Valve组合成链，以责任链的形式，逐个被每个Valve处理</p>
  * <p>整个调用过程由Adapter触发，他调用Engine的Valve，最后的BasicValve调用Host的FirstValve</p>
  * <p>其他层也是一样被上层的BasicValve触发</p>
  * @author Craig R. McClanahan

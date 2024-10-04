@@ -358,6 +358,7 @@ public interface Container extends Lifecycle {
 
 
     /**
+     * Container对定期的异步任务的支持。如对web应用文件变更的扫描。
      * Execute a periodic task, such as reloading, etc. This method will be
      * invoked inside the classloading context of this container. Unexpected
      * throwables will be caught and logged.

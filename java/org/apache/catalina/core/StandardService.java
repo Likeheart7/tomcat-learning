@@ -82,6 +82,7 @@ public class StandardService extends LifecycleMBeanBase implements Service {
     private final Object connectorsLock = new Object();
 
     /**
+     * 该service持有的线程池，是在组件间共享的线程池。
      * The list of executors held by the service.
      */
     protected final ArrayList<Executor> executors = new ArrayList<>();

@@ -156,6 +156,7 @@ import org.apache.tomcat.util.res.StringManager;
  * @see <a href="https://gitbox.apache.org/repos/asf?p=tomcat.git;a=blob;f=test/org/apache/catalina/startup/TestTomcat.java">TestTomcat</a>
  * @author Costin Manolache
  */
+// tomcat提供的在嵌入式环境下的启动类
 public class Tomcat {
 
     private static final StringManager sm = StringManager.getManager(Tomcat.class);
