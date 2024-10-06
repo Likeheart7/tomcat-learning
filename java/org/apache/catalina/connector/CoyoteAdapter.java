@@ -55,6 +55,8 @@ import org.apache.tomcat.util.res.StringManager;
 
 
 /**
+ * 将Connector与Mapper、Container联系起来。
+ * 当Connector接收到请求后，首先读取请求数据，然后调用{@link #service(org.apache.coyote.Request, org.apache.coyote.Response)}方法完成请求处理
  * Implementation of a request processor which delegates the processing to a Coyote processor.
  *
  * @author Craig R. McClanahan
@@ -298,9 +300,17 @@ public class CoyoteAdapter implements Adapter {
     }
 
 
+    /**
+     * 处理请求的核心方法
+     * @param req The request object
+     * @param res The response object
+     *
+     * @throws Exception
+     */
     @Override
     public void service(org.apache.coyote.Request req, org.apache.coyote.Response res) throws Exception {
 
+        // 根据Connector请求和响应创建Servlet请求和响应
         Request request = (Request) req.getNote(ADAPTER_NOTES);
         Response response = (Response) res.getNote(ADAPTER_NOTES);
 
@@ -541,6 +551,7 @@ public class CoyoteAdapter implements Adapter {
     // ------------------------------------------------------ Protected Methods
 
     /**
+     * 负责根据请求路径匹配的结果、会话等信息获取最终的映射结构
      * Perform the necessary processing after the HTTP headers have been parsed to enable the request/response pair to
      * be passed to the start of the container pipeline for processing.
      *
@@ -676,9 +687,9 @@ public class CoyoteAdapter implements Adapter {
 
         // Version for the second mapping loop and
         // Context that we expect to get for that version
-        String version = null;
-        Context versionContext = null;
-        boolean mapRequired = true;
+        String version = null;  // 需要匹配的版本号
+        Context versionContext = null; // 暂存按照会话ID匹配的Context
+        boolean mapRequired = true; // 是否需要映射，用于控制映射匹配循环
 
         if (response.isError()) {
             // An error this early means the URI is invalid. Ensure invalid data
@@ -687,8 +698,10 @@ public class CoyoteAdapter implements Adapter {
             decodedURI.recycle();
         }
 
+        // 第一遍循环处理映射匹配
         while (mapRequired) {
             // This will map the the latest version by default
+            // map方法根据请求路径进行匹配，因为第一次version为null，所以所有匹配该路径的context都会返回。结果存放在MappingData.contexts中
             connector.getService().getMapper().map(serverName, decodedURI, version, request.getMappingData());
 
             // If there is no context at this point, either this is a 404

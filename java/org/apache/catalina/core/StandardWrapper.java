@@ -63,7 +63,7 @@ import org.apache.tomcat.util.modeler.Registry;
 import org.apache.tomcat.util.modeler.Util;
 
 /**
- * {@link Wrapper}的标准实现
+ * {@link Wrapper}的标准实现，维护具体的Servlet实例
  * Standard implementation of the <b>Wrapper</b> interface that represents an individual servlet definition. No child
  * Containers are allowed, and the parent Container must be a Context.
  *
@@ -958,8 +958,10 @@ public class StandardWrapper extends ContainerBase implements ServletConfig, Wra
      */
     @Override
     public synchronized void load() throws ServletException {
+        // 加载servlet实例
         instance = loadServlet();
 
+        // 初始化servlet
         if (!instanceInitialized) {
             initServlet(instance);
         }

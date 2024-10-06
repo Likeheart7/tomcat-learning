@@ -858,15 +858,18 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
         // Start our subordinate components, if any
         logger = null;
         getLogger();
+        // 如果配置了集群组件Cluster，则启动
         Cluster cluster = getClusterInternal();
         if (cluster instanceof Lifecycle) {
             ((Lifecycle) cluster).start();
         }
+        // 如果配置了安全组件Realm，则启动
         Realm realm = getRealmInternal();
         if (realm instanceof Lifecycle) {
             ((Lifecycle) realm).start();
         }
 
+        // 启动子节点
         // Start our child containers, if any
         Container[] children = findChildren();
         List<Future<Void>> results = new ArrayList<>(children.length);
@@ -893,14 +896,16 @@ public abstract class ContainerBase extends LifecycleMBeanBase implements Contai
                     multiThrowable.getThrowable());
         }
 
+        // 启动当前组件持有的Pipeline组件
         // Start the Valves in our pipeline (including the basic), if any
         if (pipeline instanceof Lifecycle) {
             ((Lifecycle) pipeline).start();
         }
-
+        // 更新组件状态
         setState(LifecycleState.STARTING);
 
         // Start our thread
+        // 启动当前组件后台任务
         if (backgroundProcessorDelay > 0) {
             monitorFuture = Container.getService(ContainerBase.this).getServer().getUtilityExecutor()
                     .scheduleWithFixedDelay(new ContainerBackgroundProcessorMonitor(), 0, 60, TimeUnit.SECONDS);

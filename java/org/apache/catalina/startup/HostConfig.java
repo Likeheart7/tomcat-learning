@@ -74,6 +74,7 @@ import org.apache.tomcat.util.modeler.Registry;
 import org.apache.tomcat.util.res.StringManager;
 
 /**
+ * 启动Host相关的事件监听器
  * Startup event listener for a <b>Host</b> that configures the properties
  * of that Host, and the associated defined contexts.
  *

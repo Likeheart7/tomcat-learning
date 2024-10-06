@@ -138,7 +138,7 @@ import org.apache.tomcat.util.security.PrivilegedSetTccl;
 import org.apache.tomcat.util.threads.ScheduledThreadPoolExecutor;
 
 /**
- * {@link Context}的标准实现
+ * {@link Context}的标准实现，每个子容器必须是一个Wrapper的实现，以将请求定向到特定的servlet
  * Standard implementation of the <b>Context</b> interface. Each child container must be a Wrapper implementation to
  * process the requests directed to a particular servlet.
  *

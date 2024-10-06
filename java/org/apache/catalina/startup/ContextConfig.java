@@ -116,6 +116,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 
 /**
+ * Context的启动事件监听器
  * Startup event listener for a <b>Context</b> that configures the properties
  * of that Context, and the associated defined servlets.
  *
