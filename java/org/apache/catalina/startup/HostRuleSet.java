@@ -20,6 +20,7 @@ import org.apache.tomcat.util.digester.Digester;
 import org.apache.tomcat.util.digester.RuleSet;
 
 /**
+ * Host的解析规则
  * <p><strong>RuleSet</strong> for processing the contents of a
  * Host definition element.  This <code>RuleSet</code> does NOT include
  * any rules for nested Context which should be added via instances of
@@ -63,6 +64,7 @@ public class HostRuleSet implements RuleSet {
     // --------------------------------------------------------- Public Methods
 
     /**
+     * 解析Host
      * <p>Add the set of Rule instances defined in this RuleSet to the
      * specified <code>Digester</code> instance, associating them with
      * our namespace URI (if any).  This method should only be called
@@ -74,16 +76,19 @@ public class HostRuleSet implements RuleSet {
     @Override
     public void addRuleInstances(Digester digester) {
 
+        // 创建Host实例
         digester.addObjectCreate(prefix + "Host",
                                  "org.apache.catalina.core.StandardHost",
                                  "className");
         digester.addSetProperties(prefix + "Host");
         digester.addRule(prefix + "Host",
                          new CopyParentClassLoaderRule());
+        // 默认添加的监听器HostConfig
         digester.addRule(prefix + "Host",
                          new LifecycleListenerRule
                          ("org.apache.catalina.startup.HostConfig",
                           "hostConfigClass"));
+        // 通过addChild方法添加到Engine上
         digester.addSetNext(prefix + "Host",
                             "addChild",
                             "org.apache.catalina.Container");
@@ -92,6 +97,7 @@ public class HostRuleSet implements RuleSet {
                                "addAlias", 0);
 
         //Cluster configuration start
+        // 集群配置
         digester.addObjectCreate(prefix + "Host/Cluster",
                                  null, // MUST be specified in the element
                                  "className");
@@ -101,6 +107,7 @@ public class HostRuleSet implements RuleSet {
                             "org.apache.catalina.Cluster");
         //Cluster configuration end
 
+        // 监听器配置
         digester.addObjectCreate(prefix + "Host/Listener",
                                  null, // MUST be specified in the element
                                  "className");
@@ -109,8 +116,10 @@ public class HostRuleSet implements RuleSet {
                             "addLifecycleListener",
                             "org.apache.catalina.LifecycleListener");
 
+        // 安全配置
         digester.addRuleSet(new RealmRuleSet(prefix + "Host/"));
 
+        // 添加Valve
         digester.addObjectCreate(prefix + "Host/Valve",
                                  null, // MUST be specified in the element
                                  "className");
